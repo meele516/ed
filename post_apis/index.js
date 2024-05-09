@@ -43,7 +43,7 @@ async function lazyload(){
         }
         catch(err){
             // console.log(err)
-            res.status(404).send({error:JSON.stringify(err)})
+            res.status(404).send(err)
         }
     })
     postRoute.get("/apilist",async(req,res)=>{
@@ -52,7 +52,7 @@ async function lazyload(){
             res.status(200).send({entities:results})
         }
         catch(err){
-            res.status(404).send({error:JSON.stringify(err)})
+            res.status(404).send(err)
         }
         })
   
