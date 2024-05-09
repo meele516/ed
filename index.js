@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const postRoute =require("./post_apis/index")
 const connectDB =require("./connector")
 const cors = require('cors');
+const sqlRoute = require('./sql_apis');
   const app = express();
   app.use(cors({
     origin: '*',
@@ -16,7 +17,7 @@ const cors = require('cors');
       res.send('Hello, Express!');
     });
     app.use("/user",postRoute)
-
+    app.use("/sql",sqlRoute)
     // Start the server
     const PORT = process.env.PORT || 8080;
     app.listen(PORT, () => {
