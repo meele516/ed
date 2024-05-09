@@ -14,7 +14,7 @@ const selectedSchema = new mongoose.Schema({
   apilist: {
     type: Array
   },
-  id:{
+  _id:{
     type:String
   }
 });
