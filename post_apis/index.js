@@ -10,7 +10,7 @@ async function lazyload(){
       postRoute.post("/selectedlist",async(req,res)=>{
         try{
     console.log(req.body)
-            const savedlist = selectedlist.findByIdAndUpdate({},req.body, {
+            const savedlist = await selectedlist.findOneAndUpdate({},req.body, {
                 upsert: true, // Creates a new document if no match is found
                 new: true, // Returns the modified document
               })
@@ -34,11 +34,12 @@ async function lazyload(){
     })
     postRoute.post("/apilist",async(req,res)=>{
         try{
-    console.log(req.body)
-            const savedlist =apilist.findByIdAndUpdate({},req.body, {
+    // console.log(req.body)
+            const savedlist =await apilist.findOneAndUpdate({},req.body, {
                 upsert: true, // Creates a new document if no match is found
                 new: true, // Returns the modified document
               })
+              console.log(savedlist)
             res.status(201).send(savedlist)
         }
         catch(err){
