@@ -6,6 +6,7 @@ const connectDB =require("./connector")
 const cors = require('cors');
 const sqlRoute = require('./sql_apis');
 const aiRoute =require("./Ai_apis")
+const workFlowRoute =require("./workflow_apis")
   const app = express();
   app.use(cors({
     origin: '*',
@@ -13,13 +14,14 @@ const aiRoute =require("./Ai_apis")
   }));
   app.use(express.json({ limit: '10mb' }))
 
-
+ 
     app.get('/', (req, res) => {
       res.send('Hello, Express!');
     });
     app.use("/user",postRoute)
     app.use("/sql",sqlRoute)
     app.use("/ai",aiRoute)
+    app.use("/workflow",workFlowRoute)
     // Start the server
     const PORT = process.env.PORT || 8080;
     app.listen(PORT, () => {

@@ -27,10 +27,10 @@ const {
   });
 
 const llm= new ChatGroq({
-    apiKey:"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",
+    apiKey:"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",
    temperature:0,
-   verbose:true
-   
+   verbose:true,
+   model:"llama3-70b-8192"
 
   
   })
@@ -38,8 +38,20 @@ const llm= new ChatGroq({
 
   // Replace "\_" with "_"
   // var replacedString = inputString.replace(regex, "_");
- const chat_history =[]
+
 aiRoute.post("/getData",async (req,res)=>{
+  console.log(req.body)
+  const chat_history =[]
+  console.log(chat_history)
+  const  chathistory =req.body.history
+  chathistory.forEach(e=>{
+if(e.sender="user"){
+  chat_history.push(new HumanMessage(e.content))}
+  else if(e.sender="bot"){
+    chat_history.push(new AIMessage(e.content))
+  }
+
+  })
     try{
         const db = await SqlDatabase.fromDataSourceParams({
             appDataSource: datasource,
@@ -139,7 +151,7 @@ aiRoute.post("/getData",async (req,res)=>{
 // console.log(example,"nodejs")
 // console.log(writeQuery)
      const userquestion =req.body.query
-     chat_history.push(new HumanMessage(userquestion))
+    //  chat_history.push(new HumanMessage(userquestion))
     const timestampPrompt =   PromptTemplate.fromTemplate(`As a data analyst, you have been given a SQL query {query} and a schema {schema}. Your task is to:
 
     Update any timestamp column if (any u can know this by seeing if its  value is like 1723973500000)in the schema to a date format  using the DATE_FORMAT(FROM_UNIXTIME(column_name / 1000), '%d-%m-%y') formula.
@@ -148,13 +160,15 @@ aiRoute.post("/getData",async (req,res)=>{
     Write only a SQL query and nothing else. Do not wrap the SQL query in any other text, not even backticks. .
    `);
      const anlysisPrompt =
-     PromptTemplate.fromTemplate(`You are a data analyst at a company. you are also given a sql query {query} you need to write a analytical query on that query
-     based on the users question {question} im providing the chathistory {chat_history} im also providing the query's response to see what the table consists of {response} each object is a row the columnsnames are keys and the values are corresponding key values no need to use JSON_EXTRACT or JSON_VALUE im sending u response for contextpurpose actual data is store in sql database 
+     ChatPromptTemplate.fromMessages([["system",`You are a data analyst at a company. you are also given a sql query {query} you need to write a analytical query on that query
+     based on the users question  im providing the chathistory {chat_history} im also providing the query's response to see what the table consists of {response} each object is a row the columnsnames are keys and the values are corresponding key values no need to use JSON_EXTRACT or JSON_VALUE or any json sql operations im sending u response for contextpurpose actual data is store in sql database 
     make sure you get the column names from this {schema} *** dont take ur own column names
-    i need a readable query Don't skip anything by using ...,
+    i need a readable query Don't skip anything by using ..., 
     make sure not to use any reserved keywords as derived column names,
   note : please Write only a SQL query and nothing else. Do not wrap the SQL query in any other text, not even backticks donot give additional text other than sqlquery.
-    `); 
+    `],
+    new MessagesPlaceholder("chat_history"),
+    ["user","{question}"]])
 const answerChain = anlysisPrompt.pipe(llm).pipe(new StringOutputParser());
 // const answerChainWithMemory =new ConversationChain({
 //   llm
@@ -162,7 +176,7 @@ const answerChain = anlysisPrompt.pipe(llm).pipe(new StringOutputParser());
 const timestampchain =timestampPrompt.pipe(llm).pipe(new StringOutputParser())
 let aq=""
 const chain = RunnableSequence.from([
-  RunnablePassthrough.assign({}).assign({
+  RunnablePassthrough.assign({query:correctchain}).assign({
  
     // query: (i) => timestampchain.invoke(i.query)
   }),
@@ -183,17 +197,17 @@ const chain = RunnableSequence.from([
   },
  
   
-prev=>{return {query:prev.query.replace(regex, "_")}}
-,
-prev=>{return{query:prev.query.replace(/\\_/g, '_')}},
+// prev=>{return {query:prev.query.replace(regex, "_")}}
+// ,
+// prev=>{return{query:prev.query.replace(/\\_/g, '_')}},
 prev=>{
   // let regex=/```sql\n(.*?)(?=\n```)/gs 
   console.log(prev.query,"phase4")
   aq= prev.query
-  chat_history.push(new AIMessage(prev.query))
+  // chat_history.push(new AIMessage(prev.query))
   return prev 
 }   
-  , 
+  ,  
   // prev=>executeQuery.invoke(prev.query) 
 
 ]);
