@@ -27,7 +27,7 @@ const {
   });
 
 const llm= new ChatGroq({
-    apiKey:"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",
+    apiKey:"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",
    temperature:0,
    verbose:true,
    model:"llama3-70b-8192"
